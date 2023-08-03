@@ -19,7 +19,15 @@ Here you can find some info about this project
     	- [archivedNewExtactedData](./README.md#archivednewextacteddata)
 	- [Load](./README.md#load-1)
 
-# HOW TO RUN
+
+# HOW TO RUN Project Tests
+simply run following command in Project root directory:
+``` 
+python -m unittest discover -p "*_test.py"
+```
+
+
+# HOW TO RUN the Project
 Make a clone of project on your computer and open it
 
 ![inside basic_etl_project folder image](./docs/project%20folder.png)
