@@ -1,0 +1,45 @@
+name: CI/CD
+on:
+  push:
+    branches:
+      - '**'
+      - '!main'
+  release:
+    branches:
+      - main
+    types: [published]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    if: github.event_name == 'push'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Run unit tests
+      run: pytest
+
+    - name: extract git commit data
+      if: ${{ success() }}
+      uses: rlespinasse/git-commit-data-action@v1.x
+  
+    - name: create pull request
+      run: gh pr create -B main -H $BRANCH_NAME --title "${{ env.GIT_COMMIT_MESSAGE_SUBJECT }}" --body "${{ env.GIT_COMMIT_MESSAGE_BODY }}"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BRANCH_NAME: ${{ github.ref_name }}
+  deploy:
+    runs-on: self-hosted
+    if: github.event_name == 'release'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: copy project source code to /app
+        run: cp -rp . /app
+      - name: Run unit tests
+        run: pytest /app
+      - name: build and up the docker containers
+        run: |
+            cd /app
+            docker compose up -d --build
